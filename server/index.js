@@ -11,13 +11,15 @@ app.use(cors())
 app.use(helmet())
 app.use(express.json())
 app.use("/auth", authRouter)
-app.use(errorHandler)
+
 
 const PORT = process.env.PORT || 3000
 
 app.get("/health", (req, res) => {
     res.json({message : "Server is running"})
 })
+
+app.use(errorHandler)
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
