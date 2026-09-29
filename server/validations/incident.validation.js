@@ -41,3 +41,16 @@ export const updateIncidentSchema = z.object({
         lng: z.number().min(-180).max(180)
     }).optional()
 })
+
+export const incidentIdSchema = z.string().regex(
+    /^[0-9a-fA-F]{24}$/,
+    "Invalid incident id"
+)
+
+export const categoryQuerySchema = z.enum([
+    "fire",
+    "flood",
+    "accident",
+    "medical",
+    "other"
+]).optional()

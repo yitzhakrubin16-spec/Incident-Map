@@ -1,4 +1,8 @@
-import { createIncidentSchema, updateIncidentSchema } from "../validations/incident.validation.js"
+import { 
+    createIncidentSchema,
+    updateIncidentSchema,
+    incidentIdSchema,
+    categoryQuerySchema } from "../validations/incident.validation.js"
 import { 
     createIncident,
     getAllIncidents, 
@@ -32,11 +36,27 @@ export async function createIncidentService(body, userId) {
 }
 
 export async function getAllIncidentsService(category) {
-    return getAllIncidents(category)
+    const result = categoryQuerySchema.safeParse(category)
+
+    if (!result.success) {
+        const error = new Error("Invalid category")
+        error.status = 400
+        throw error
+    }
+
+    return getAllIncidents(result.data)
 }
 
 export async function getIncidentByIdService(id) {
-    const incident = await getIncidentById(id)
+    const result = incidentIdSchema.safeParse(id)
+
+    if (!result.success) {
+        const error = new Error("Invalid incident id")
+        error.status = 400
+        throw error
+    }
+
+    const incident = await getIncidentById(result.data)
 
     if (!incident) {
         const error = new Error("Incident not found")
@@ -48,6 +68,14 @@ export async function getIncidentByIdService(id) {
 }
 
 export async function updateIncidentService(id, body, user) {
+    const idResult = incidentIdSchema.safeParse(id)
+
+    if (!idResult.success) {
+        const error = new Error("Invalid incident id")
+        error.status = 400
+        throw error
+    }
+
     const result = updateIncidentSchema.safeParse(body)
 
     if (!result.success) {
@@ -56,7 +84,7 @@ export async function updateIncidentService(id, body, user) {
         throw error
     }
 
-    const incident = await getIncidentById(id)
+    const incident = await getIncidentById(idResult.data)
 
     if (!incident) {
         const error = new Error("Incident not found")
@@ -78,11 +106,19 @@ export async function updateIncidentService(id, body, user) {
         updatedAt: new Date()
     }
 
-    return updateIncident(id, updates)
+    return updateIncident(idResult.data, updates)
 }
 
 export async function deleteIncidentService(id, user) {
-    const incident = await getIncidentById(id)
+    const result = incidentIdSchema.safeParse(id)
+
+    if (!result.success) {
+        const error = new Error("Invalid incident id")
+        error.status = 400
+        throw error
+    }
+
+    const incident = await getIncidentById(result.data)
 
     if (!incident) {
         const error = new Error("Incident not found")
@@ -99,5 +135,5 @@ export async function deleteIncidentService(id, user) {
         throw error
     }
 
-    return deleteIncident(id)
+    return deleteIncident(result.data)
 }
