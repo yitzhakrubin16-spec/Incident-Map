@@ -1,5 +1,10 @@
 import { createIncidentSchema, updateIncidentSchema } from "../validations/incident.validation.js"
-import { createIncident, getAllIncidents, getIncidentById, updateIncident } from "../DAL/incident.dal.js"
+import { 
+    createIncident,
+    getAllIncidents, 
+    getIncidentById, 
+    updateIncident, 
+    deleteIncident } from "../DAL/incident.dal.js"
 
 export async function createIncidentService(body, userId) {
     const result = createIncidentSchema.safeParse(body)
@@ -74,4 +79,25 @@ export async function updateIncidentService(id, body, user) {
     }
 
     return updateIncident(id, updates)
+}
+
+export async function deleteIncidentService(id, user) {
+    const incident = await getIncidentById(id)
+
+    if (!incident) {
+        const error = new Error("Incident not found")
+        error.status = 404
+        throw error
+    }
+
+    if (
+        incident.createdBy !== user.id &&
+        user.role !== "admin"
+    ) {
+        const error = new Error("Forbidden")
+        error.status = 403
+        throw error
+    }
+
+    return deleteIncident(id)
 }
