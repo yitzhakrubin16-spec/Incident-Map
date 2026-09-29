@@ -1,5 +1,5 @@
 import { createIncidentSchema } from "../validations/incident.validation.js"
-import { createIncident } from "../DAL/incident.dal.js"
+import { createIncident, getAllIncidents, getIncidentById } from "../DAL/incident.dal.js"
 
 export async function createIncidentService(body, userId) {
     const result = createIncidentSchema.safeParse(body)
@@ -24,4 +24,20 @@ export async function createIncidentService(body, userId) {
         id: response.insertedId,
         ...incident
     }
+}
+
+export async function getAllIncidentsService(category) {
+    return getAllIncidents(category)
+}
+
+export async function getIncidentByIdService(id) {
+    const incident = await getIncidentById(id)
+
+    if (!incident) {
+        const error = new Error("Incident not found")
+        error.status = 404
+        throw error
+    }
+
+    return incident
 }
