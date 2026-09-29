@@ -1,4 +1,4 @@
-import { createIncidentService, getAllIncidentsService, getIncidentByIdService } from "../services/incident.service.js"
+import { createIncidentService, getAllIncidentsService, getIncidentByIdService, updateIncidentService } from "../services/incident.service.js"
 
 export async function createIncidentController(req, res, next) {
     try {
@@ -33,6 +33,23 @@ export async function getAllIncidentsController(req, res, next) {
 export async function getIncidentByIdController(req, res, next) {
     try {
         const incident = await getIncidentByIdService(req.params.id)
+
+        res.json({
+            success: true,
+            data: incident
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+export async function updateIncidentController(req, res, next) {
+    try {
+        const incident = await updateIncidentService(
+            req.params.id,
+            req.body,
+            req.user
+        )
 
         res.json({
             success: true,
