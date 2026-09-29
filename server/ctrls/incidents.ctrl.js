@@ -4,6 +4,7 @@ import {
     getIncidentByIdService, 
     updateIncidentService,
     deleteIncidentService } from "../services/incident.service.js"
+import { getIO } from "../utils/socket.js"
 
 export async function createIncidentController(req, res, next) {
     try {
@@ -12,6 +13,8 @@ export async function createIncidentController(req, res, next) {
             req.user.id
         )
 
+        getIO().emit("incident:created", incident)
+        
         res.status(201).json({
             success: true,
             data: incident
@@ -56,6 +59,8 @@ export async function updateIncidentController(req, res, next) {
             req.user
         )
 
+        getIO().emit("incident:updated", incident)
+
         res.json({
             success: true,
             data: incident
@@ -71,6 +76,8 @@ export async function deleteIncidentController(req, res, next) {
             req.params.id,
             req.user
         )
+
+        getIO().emit("incident:deleted", {id: incident._id})
 
         res.json({
             success: true,
