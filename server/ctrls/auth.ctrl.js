@@ -1,4 +1,4 @@
-import { loginService, registerService } from "../services/auth.service.js"
+import { getMeService, loginService, registerService } from "../services/auth.service.js"
 
 export async function registerController(req, res, next) {
     try {
@@ -24,4 +24,17 @@ export async function loginController(req, res, next) {
     } catch (error) {
         next(error)
     }
+}
+
+export async function getMeController(req, res, next) {
+    try {
+        const user = await getMeService(req.user.id)
+
+        res.json({
+            success: true,
+            data: user
+        })
+    } catch(error) {
+        next(error)
+    }    
 }

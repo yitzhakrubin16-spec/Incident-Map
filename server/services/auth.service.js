@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt"
 import { authSchema } from "../validations/auth.validation.js"
-import { createUser, findUserByEmail } from "../DAL/user.dal.js"
+import { createUser, findUserByEmail, findUserById} from "../DAL/user.dal.js"
 import { generateToken } from "../utils/generateToken.js"
 
 export async function registerService(body) {
@@ -89,4 +89,21 @@ export async function loginService(body) {
         token
     }
 
+}
+
+export async function getMeService(userId) {
+    const user = await findUserById(userId)
+
+    if(!user){
+        const error = new Error("User not found")
+        error.status = 404
+        throw error
+    }
+
+    return{
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt
+    }
 }
