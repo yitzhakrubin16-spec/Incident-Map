@@ -31,6 +31,7 @@ function MapPage() {
   const [category, setCategory] = useState<
     "fire" | "flood" | "accident" | "medical" | "other"
   >("other")
+  const [error, setError] = useState("")
 
   const token = useAuthStore((state) => state.token)
 
@@ -51,19 +52,26 @@ function MapPage() {
 
     if (!token || !selectedLocation) return
 
-    const response = await createIncident(token, {
-      title,
-      description,
-      category,
-      location: selectedLocation
-    })
+    try {
+      const response = await createIncident(token, {
+        title,
+        description,
+        category,
+        location: selectedLocation
+      })
 
-    setIncidents((current) => [...current, response.data])
+      setIncidents((current) => [...current, response.data])
 
-    setTitle("")
-    setDescription("")
-    setCategory("other")
-    setSelectedLocation(null)
+      setTitle("")
+      setDescription("")
+      setCategory("other")
+      setSelectedLocation(null)
+      setError("")
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message)
+      }
+    }
   }
 
   return (
@@ -103,6 +111,7 @@ function MapPage() {
           </select>
 
           <button type="submit">Create Incident</button>
+          {error && <p>{error}</p>}
         </form>
       )}
 
