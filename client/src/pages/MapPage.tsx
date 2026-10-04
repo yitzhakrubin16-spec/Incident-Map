@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { getIncidents } from "../services/incident.service"
 import { useAuthStore } from "../store/authStore"
+import { MapContainer, TileLayer } from "react-leaflet"
+import "leaflet/dist/leaflet.css"
 
 type Incident = {
   id: string
@@ -38,11 +40,16 @@ function MapPage() {
     <div>
       <h1>Incident Map</h1>
 
-      {incidents.map((incident) => (
-        <p key={incident.id}>
-          {incident.title}
-        </p>
-      ))}
+      <MapContainer
+      center={[32.0853, 34.7818]}
+      zoom={12}
+      style={{height: "500px", width:"100%"}}
+      >
+        <TileLayer
+        attribution="&copy; OpenStreetMap contributors"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      </MapContainer>
     </div>
   )
 }
