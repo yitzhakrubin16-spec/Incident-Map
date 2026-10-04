@@ -3,6 +3,7 @@ import { getIncidents } from "../services/incident.service"
 import { useAuthStore } from "../store/authStore"
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
+import MapClickHandler from "../components/MapClickHandler"
 
 type Incident = {
   id: string
@@ -21,12 +22,16 @@ type Incident = {
 
 function MapPage() {
   const [incidents, setIncidents] = useState<Incident[]>([])
-  
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number
+    lng: number
+  } | null>(null)
+
   const token = useAuthStore((state) => state.token)
 
   useEffect(() => {
     async function loadIncidents() {
-      if(!token) return
+      if (!token) return
 
       const response = await getIncidents(token)
 
@@ -48,6 +53,11 @@ function MapPage() {
         <TileLayer
         attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <MapClickHandler 
+        onMapClick={(lat, lng) => {
+          setSelectedLocation({ lat, lng })
+        }}
         />
         {incidents.map((incident) => (
           <Marker
