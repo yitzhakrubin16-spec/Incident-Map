@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { getIncidents } from "../services/incident.service"
+import { useEffect, useState,  type SubmitEvent } from "react"
+import { getIncidents, createIncident } from "../services/incident.service"
 import { useAuthStore } from "../store/authStore"
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
@@ -26,6 +26,11 @@ function MapPage() {
     lat: number
     lng: number
   } | null>(null)
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [category, setCategory] = useState<
+    "fire" | "flood" | "accident" | "medical" | "other"
+  >("other")
 
   const token = useAuthStore((state) => state.token)
 
@@ -41,9 +46,65 @@ function MapPage() {
     loadIncidents()
   }, [token])
   
+  async function handleCreateIncident(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    if (!token || !selectedLocation) return
+
+    const response = await createIncident(token, {
+      title,
+      description,
+      category,
+      location: selectedLocation
+    })
+
+    setIncidents((current) => [...current, response.data])
+
+    setTitle("")
+    setDescription("")
+    setCategory("other")
+    setSelectedLocation(null)
+  }
+
   return (
     <div>
       <h1>Incident Map</h1>
+
+      {selectedLocation && (
+        <form onSubmit={handleCreateIncident}>
+          <input type="text"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)} 
+          />
+
+          <textarea placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          />
+
+          <select 
+          value={category}
+          onChange={(e) => 
+          setCategory(
+            e.target.value as 
+            | "fire" 
+            | "flood"
+            | "accident"
+            | "medical"
+            | "other"
+            )}>
+
+              <option value="fire">Fire</option>
+              <option value="flood">Flood</option>
+              <option value="accident">Accident</option>
+              <option value="medical">Medical</option>
+              <option value="other">Other</option>
+          </select>
+
+          <button type="submit">Create Incident</button>
+        </form>
+      )}
 
       <MapContainer
       center={[32.0853, 34.7818]}
