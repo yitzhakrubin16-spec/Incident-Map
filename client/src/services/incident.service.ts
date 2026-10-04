@@ -10,8 +10,12 @@ type CreateIncidentData = {
     }
 }
 
-export async function getIncidents(token: string) {
-    const response = await fetch(`${API_URL}/incidents`, {
+export async function getIncidents(token: string, category?: string) {
+    const url = category
+        ? `${API_URL}/incidents?category=${category}`
+        : `${API_URL}/incidents`
+
+    const response = await fetch(url, {
         headers: {
             Authorization: `Bearer ${token}`
         }

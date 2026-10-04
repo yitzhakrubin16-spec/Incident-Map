@@ -31,6 +31,7 @@ function MapPage() {
   const [category, setCategory] = useState<
     "fire" | "flood" | "accident" | "medical" | "other"
   >("other")
+  const [filterCategory, setFilterCategory] = useState("")
   const [error, setError] = useState("")
 
   const token = useAuthStore((state) => state.token)
@@ -39,13 +40,16 @@ function MapPage() {
     async function loadIncidents() {
       if (!token) return
 
-      const response = await getIncidents(token)
+      const response = await getIncidents(
+        token,
+        filterCategory || undefined
+      )
 
       setIncidents(response.data)
     }
 
     loadIncidents()
-  }, [token])
+  }, [token, filterCategory])
   
   async function handleCreateIncident(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -59,8 +63,9 @@ function MapPage() {
         category,
         location: selectedLocation
       })
-
-      setIncidents((current) => [...current, response.data])
+      if (!filterCategory || response.data.category === filterCategory) {
+        setIncidents((current) => [...current, response.data])
+      }
 
       setTitle("")
       setDescription("")
@@ -78,6 +83,16 @@ function MapPage() {
     <div>
       <h1>Incident Map</h1>
 
+      <select value={filterCategory}
+      onChange={(e) => setFilterCategory(e.target.value)}
+      >
+        <option value="">All</option>
+        <option value="fire">Fire</option>
+        <option value="flood">Flood</option>
+        <option value="accident">Accident</option>
+        <option value="medical">Medical</option>
+        <option value="other">Other</option>
+      </select>
       {selectedLocation && (
         <form onSubmit={handleCreateIncident}>
           <input type="text"
