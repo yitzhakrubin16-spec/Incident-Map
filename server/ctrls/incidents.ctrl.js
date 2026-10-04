@@ -77,7 +77,7 @@ export async function deleteIncidentController(req, res, next) {
             req.user
         )
 
-        getIO().emit("incident:deleted", {id: incident._id})
+        getIO().emit("incident:deleted", {id: incident.id})
 
         res.json({
             success: true,

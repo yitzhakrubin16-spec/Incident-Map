@@ -10,6 +10,15 @@ import {
     updateIncident, 
     deleteIncident } from "../DAL/incident.dal.js"
 
+function formatIncident(incident) {
+    const { _id, ...rest } = incident
+
+    return {
+        id: _id.toString(),
+        ...rest
+    }
+}
+
 export async function createIncidentService(body, userId) {
     const result = createIncidentSchema.safeParse(body)
 
@@ -30,7 +39,7 @@ export async function createIncidentService(body, userId) {
     const response = await createIncident(incident)
 
     return {
-        id: response.insertedId,
+        id: response.insertedId.toString(),
         ...incident
     }
 }
@@ -44,7 +53,9 @@ export async function getAllIncidentsService(category) {
         throw error
     }
 
-    return getAllIncidents(result.data)
+    const incidents = await getAllIncidents(result.data)
+
+    return incidents.map(formatIncident)
 }
 
 export async function getIncidentByIdService(id) {
@@ -64,7 +75,7 @@ export async function getIncidentByIdService(id) {
         throw error
     }
 
-    return incident
+    return formatIncident(incident)
 }
 
 export async function updateIncidentService(id, body, user) {
@@ -106,7 +117,9 @@ export async function updateIncidentService(id, body, user) {
         updatedAt: new Date()
     }
 
-    return updateIncident(idResult.data, updates)
+    const updatedIncident = await updateIncident(idResult.data, updates)
+
+    return formatIncident(updatedIncident)
 }
 
 export async function deleteIncidentService(id, user) {
@@ -135,5 +148,7 @@ export async function deleteIncidentService(id, user) {
         throw error
     }
 
-    return deleteIncident(result.data)
+    const deletedIncident = await deleteIncident(result.data)
+
+    return formatIncident(deletedIncident)
 }
