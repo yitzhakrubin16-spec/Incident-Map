@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { getIncidents } from "../services/incident.service"
 import { useAuthStore } from "../store/authStore"
-import { MapContainer, TileLayer } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
 
 type Incident = {
@@ -49,6 +49,19 @@ function MapPage() {
         attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        {incidents.map((incident) => (
+          <Marker
+          key={incident.id}
+          position={[incident.location.lat, incident.location.lng]}
+          >
+            <Popup>
+              <h3>{incident.title}</h3>
+              <p>{incident.description}</p>
+              <p>{incident.category}</p>
+              <p>{incident.status}</p>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
     </div>
   )
